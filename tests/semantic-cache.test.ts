@@ -24,7 +24,6 @@ describe("Semantic Cache Utilities", () => {
 
   it("should return '__all__' when no document scope is restricted", () => {
     expect(buildDocScopeKey([])).toBe("__all__");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(buildDocScopeKey(undefined as any)).toBe("__all__");
   });
 });

@@ -288,7 +288,6 @@ function cosineSimilarity(a: number[], b: number[]): number {
 }
 
 async function fallbackVectorSearch(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   collection: any,
   queryEmbedding: number[],
   options: SearchOptions
@@ -315,7 +314,6 @@ async function fallbackVectorSearch(
 }
 
 async function fallbackKeywordSearch(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   collection: any,
   query: string,
   options: SearchOptions

@@ -183,7 +183,6 @@ class MockAIProvider implements AIProvider {
 
   async chatStream(
     messages: { role: "user" | "assistant" | "system"; content: string }[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _systemInstruction?: string
   ): Promise<ReadableStream<string>> {
     const lastMsg = messages[messages.length - 1]?.content || "";
@@ -201,7 +200,6 @@ class MockAIProvider implements AIProvider {
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async generateText(prompt: string, _systemInstruction?: string): Promise<string> {
     return `Summary of discussion: Key topics covered related to ${prompt.slice(0, 50)}.`;
   }

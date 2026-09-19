@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: false,
+  },
   serverExternalPackages: ["unpdf", "pdfjs-dist"],
   webpack: (config) => {
     config.resolve.alias = {

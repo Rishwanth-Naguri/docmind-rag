@@ -130,9 +130,7 @@ async function setupIndexes() {
   console.log("\nDeploying Atlas Vector Search and Full-Text Search indexes...");
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const rawChunks = chunksCol as any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const rawCache = cacheCol as any;
 
     if (typeof rawChunks.createSearchIndex === "function") {

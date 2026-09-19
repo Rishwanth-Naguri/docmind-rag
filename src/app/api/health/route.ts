@@ -15,10 +15,8 @@ export async function GET() {
     let searchIndexesStatus: { name: string; status: string; type?: string }[] = [];
     try {
       const chunksCol = await getChunksCollection();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const cursor = (chunksCol as any).listSearchIndexes();
       const indexes = await cursor.toArray();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       searchIndexesStatus = indexes.map((idx: any) => ({
         name: idx.name,
         status: idx.status || "READY",

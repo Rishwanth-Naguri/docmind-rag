@@ -112,7 +112,6 @@ export async function getAnalyticsMetrics(sessionId?: string): Promise<Analytics
   }[] = [];
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     rawFacetResults = (await messagesCol.aggregate(pipeline as any).toArray()) as any;
   } catch (err) {
     console.warn("MongoDB aggregation facet failed (e.g. running in mock/dev):", err);
