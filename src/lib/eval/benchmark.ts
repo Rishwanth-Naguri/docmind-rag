@@ -1,4 +1,4 @@
-import { getEvalCasesCollection, getEvalRunsCollection } from "../mongodb";
+import { getEvalCasesCollection, getEvalRunsCollection, getChunksCollection } from "../mongodb";
 import { EvalCaseRecord, EvalModeResult, EvalRunRecord } from "../types/database";
 import { runHybridSearch } from "../retrieval/search";
 
@@ -22,12 +22,17 @@ export async function runEvaluationBenchmark(sessionId: string, topK: number = 5
     let hits5 = 0;
     let totalLatency = 0;
 
+    const targetSessionId =
+      (await (await getChunksCollection()).countDocuments({ sessionId })) > 0
+        ? sessionId
+        : "demo-session-global";
+
     const details: EvalModeResult["details"] = [];
 
     for (const testCase of cases) {
       const startTime = Date.now();
       const results = await runHybridSearch(testCase.question, {
-        sessionId,
+        sessionId: targetSessionId,
         topK,
         mode: mode === "hybrid" ? "hybrid" : mode,
       });

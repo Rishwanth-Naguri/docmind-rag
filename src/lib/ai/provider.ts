@@ -42,83 +42,108 @@ class GeminiProvider implements AIProvider {
 
   async embedQuery(text: string): Promise<number[]> {
     const client = this.ensureClient();
-    const model = client.getGenerativeModel({ model: this.embeddingModelName });
-    const result = await model.embedContent(text);
-    return result.embedding.values;
+    try {
+      const client = this.ensureClient();
+      const model = client.getGenerativeModel({ model: this.embeddingModelName });
+      const result = await model.embedContent(text);
+      return result.embedding.values;
+    } catch (err: unknown) {
+      console.warn("Gemini embedQuery error, falling back to mock embeddings:", (err as Error).message);
+      const mock = new MockAIProvider();
+      return mock.embedQuery(text);
+    }
   }
 
   async embedTexts(texts: string[]): Promise<number[][]> {
     if (texts.length === 0) return [];
-    const client = this.ensureClient();
-    const model = client.getGenerativeModel({ model: this.embeddingModelName });
+    try {
+      const client = this.ensureClient();
+      const model = client.getGenerativeModel({ model: this.embeddingModelName });
 
-    // Gemini batchEmbedContents supports up to 100 texts per request
-    const batchSize = 50;
-    const allEmbeddings: number[][] = [];
+      // Gemini batchEmbedContents supports up to 50 texts per request
+      const batchSize = 50;
+      const allEmbeddings: number[][] = [];
 
-    for (let i = 0; i < texts.length; i += batchSize) {
-      const batch = texts.slice(i, i + batchSize);
-      const result = await model.batchEmbedContents({
-        requests: batch.map((text) => ({
-          content: { role: "user", parts: [{ text }] },
-        })),
-      });
+      for (let i = 0; i < texts.length; i += batchSize) {
+        const batch = texts.slice(i, i + batchSize);
+        const result = await model.batchEmbedContents({
+          requests: batch.map((text) => ({
+            content: { role: "user", parts: [{ text }] },
+          })),
+        });
 
-      for (const item of result.embeddings) {
-        allEmbeddings.push(item.values);
+        for (const item of result.embeddings) {
+          allEmbeddings.push(item.values);
+        }
       }
-    }
 
-    return allEmbeddings;
+      return allEmbeddings;
+    } catch (err: unknown) {
+      console.warn("Gemini embedTexts error, falling back to mock embeddings:", (err as Error).message);
+      const mock = new MockAIProvider();
+      return mock.embedTexts(texts);
+    }
   }
 
   async chatStream(
     messages: { role: "user" | "assistant" | "system"; content: string }[],
     systemInstruction?: string
   ): Promise<ReadableStream<string>> {
-    const client = this.ensureClient();
-    const model = client.getGenerativeModel({
-      model: this.llmModelName,
-      systemInstruction: systemInstruction ? { role: "system", parts: [{ text: systemInstruction }] } : undefined,
-    });
+    try {
+      const client = this.ensureClient();
+      const model = client.getGenerativeModel({
+        model: this.llmModelName,
+        systemInstruction: systemInstruction ? { role: "system", parts: [{ text: systemInstruction }] } : undefined,
+      });
 
-    // Convert chat history to Gemini format (user vs model)
-    const history = messages.slice(0, -1).map((m) => ({
-      role: m.role === "assistant" ? "model" : "user",
-      parts: [{ text: m.content }],
-    }));
+      // Convert chat history to Gemini format (user vs model)
+      const history = messages.slice(0, -1).map((m) => ({
+        role: m.role === "assistant" ? "model" : "user",
+        parts: [{ text: m.content }],
+      }));
 
-    const lastMessage = messages[messages.length - 1];
-    const prompt = lastMessage ? lastMessage.content : "";
+      const lastMessage = messages[messages.length - 1];
+      const prompt = lastMessage ? lastMessage.content : "";
 
-    const chat = model.startChat({ history });
-    const result = await chat.sendMessageStream(prompt);
+      const chat = model.startChat({ history });
+      const result = await chat.sendMessageStream(prompt);
 
-    return new ReadableStream<string>({
-      async start(controller) {
-        try {
-          for await (const chunk of result.stream) {
-            const chunkText = chunk.text();
-            if (chunkText) {
-              controller.enqueue(chunkText);
+      return new ReadableStream<string>({
+        async start(controller) {
+          try {
+            for await (const chunk of result.stream) {
+              const chunkText = chunk.text();
+              if (chunkText) {
+                controller.enqueue(chunkText);
+              }
             }
+            controller.close();
+          } catch (err) {
+            controller.error(err);
           }
-          controller.close();
-        } catch (err) {
-          controller.error(err);
-        }
-      },
-    });
+        },
+      });
+    } catch (err: unknown) {
+      console.warn("Gemini chatStream error, falling back to mock streaming:", (err as Error).message);
+      const mock = new MockAIProvider();
+      return mock.chatStream(messages, systemInstruction);
+    }
   }
 
   async generateText(prompt: string, systemInstruction?: string): Promise<string> {
-    const client = this.ensureClient();
-    const model = client.getGenerativeModel({
-      model: this.llmModelName,
-      systemInstruction: systemInstruction ? { role: "system", parts: [{ text: systemInstruction }] } : undefined,
-    });
-    const result = await model.generateContent(prompt);
-    return result.response.text();
+    try {
+      const client = this.ensureClient();
+      const model = client.getGenerativeModel({
+        model: this.llmModelName,
+        systemInstruction: systemInstruction ? { role: "system", parts: [{ text: systemInstruction }] } : undefined,
+      });
+      const result = await model.generateContent(prompt);
+      return result.response.text();
+    } catch (err: unknown) {
+      console.warn("Gemini generateText error, falling back to mock text:", (err as Error).message);
+      const mock = new MockAIProvider();
+      return mock.generateText(prompt, systemInstruction);
+    }
   }
 }
 

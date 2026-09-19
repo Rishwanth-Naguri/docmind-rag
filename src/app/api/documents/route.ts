@@ -10,7 +10,9 @@ export async function GET() {
     const docsCol = await getDocumentsCollection();
 
     const documents = await docsCol
-      .find({ sessionId })
+      .find({
+        $or: [{ sessionId }, { sessionId: "demo-session-global" }],
+      })
       .sort({ createdAt: -1 })
       .toArray();
 

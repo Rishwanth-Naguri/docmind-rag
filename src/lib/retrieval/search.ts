@@ -103,8 +103,13 @@ export async function runVectorSearch(
   const topK = options.topK || 5;
   const indexName = process.env.CHUNK_VECTOR_INDEX || "chunk_vector_index";
 
+  const sessionFilterValues =
+    options.sessionId === "demo-session-global"
+      ? ["demo-session-global"]
+      : [options.sessionId, "demo-session-global"];
+
   const filter: Record<string, unknown> = {
-    sessionId: options.sessionId,
+    sessionId: { $in: sessionFilterValues },
   };
 
   if (options.documentIds && options.documentIds.length > 0) {
@@ -151,12 +156,17 @@ export async function runKeywordSearch(
   const topK = options.topK || 5;
   const indexName = process.env.CHUNK_TEXT_INDEX || "chunk_text_index";
 
+  const sessionFilterValues =
+    options.sessionId === "demo-session-global"
+      ? ["demo-session-global"]
+      : [options.sessionId, "demo-session-global"];
+
   try {
     const compoundFilters: unknown[] = [
       {
-        equals: {
+        in: {
           path: "sessionId",
-          value: options.sessionId,
+          value: sessionFilterValues,
         },
       },
     ];
@@ -283,7 +293,12 @@ async function fallbackVectorSearch(
   queryEmbedding: number[],
   options: SearchOptions
 ): Promise<ChunkRecord[]> {
-  const filter: Record<string, unknown> = { sessionId: options.sessionId };
+  const sessionFilterValues =
+    options.sessionId === "demo-session-global"
+      ? ["demo-session-global"]
+      : [options.sessionId, "demo-session-global"];
+
+  const filter: Record<string, unknown> = { sessionId: { $in: sessionFilterValues } };
   if (options.documentIds && options.documentIds.length > 0) {
     const validIds = options.documentIds.filter(ObjectId.isValid).map((id) => new ObjectId(id));
     if (validIds.length > 0) filter.documentId = { $in: validIds };
@@ -305,7 +320,12 @@ async function fallbackKeywordSearch(
   query: string,
   options: SearchOptions
 ): Promise<ChunkRecord[]> {
-  const filter: Record<string, unknown> = { sessionId: options.sessionId };
+  const sessionFilterValues =
+    options.sessionId === "demo-session-global"
+      ? ["demo-session-global"]
+      : [options.sessionId, "demo-session-global"];
+
+  const filter: Record<string, unknown> = { sessionId: { $in: sessionFilterValues } };
   if (options.documentIds && options.documentIds.length > 0) {
     const validIds = options.documentIds.filter(ObjectId.isValid).map((id) => new ObjectId(id));
     if (validIds.length > 0) filter.documentId = { $in: validIds };

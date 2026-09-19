@@ -113,18 +113,12 @@ async function seed() {
   console.log(`Inserted ${EVAL_CASES.length} evaluation cases.`);
 
   // 2. Seed Sample Documents
+  console.log("Cleaning previous demo documents and chunks...");
+  await docsCol.deleteMany({ sessionId: DEMO_SESSION_ID });
+  await chunksCol.deleteMany({ sessionId: DEMO_SESSION_ID });
+
   console.log("Ingesting sample documents and generating embeddings...");
   for (const doc of SAMPLE_DOCS) {
-    // Upsert document record
-    const existingDoc = await docsCol.findOne({
-      sessionId: DEMO_SESSION_ID,
-      filename: doc.filename,
-    });
-
-    if (existingDoc) {
-      console.log(`Document "${doc.filename}" already exists for demo session.`);
-      continue;
-    }
 
     const docInsert = await docsCol.insertOne({
       sessionId: DEMO_SESSION_ID,
