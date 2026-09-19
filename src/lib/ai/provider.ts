@@ -201,7 +201,8 @@ class MockAIProvider implements AIProvider {
     });
   }
 
-  async generateText(prompt: string): Promise<string> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async generateText(prompt: string, _systemInstruction?: string): Promise<string> {
     return `Summary of discussion: Key topics covered related to ${prompt.slice(0, 50)}.`;
   }
 }
