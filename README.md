@@ -11,7 +11,7 @@
 
 ## 🌟 Live Demo & Preview
 
-- **Live URL**: [https://docmind-rag.vercel.app](https://docmind-rag.vercel.app) *(Deployment Link)*
+- **Live URL**: (https://docmind-rag-xi.vercel.app) *(Deployment Link)*
 - **GitHub Repository**: [https://github.com/your-username/docmind-rag](https://github.com/your-username/docmind-rag)
 
 ---
